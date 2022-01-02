@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration> 
+	<!--  사용할 객체를 설정 -->
+	<typeAliases>
+		<typeAlias  alias="board" type="com.ch.project.model.Board"/>
+		<typeAlias  alias="like" type="com.ch.project.model.Like"/>
+		<typeAlias  alias="member" type="com.ch.project.model.Member"/>
+		<!-- <typeAlias  alias="follow" type="com.ch.project.model.Follow"/> -->
+		<!-- <typeAlias  alias="boardphoto" type="com.ch.project.model.BoardPhoto"/> -->
+		
+	</typeAliases>
+	<!-- ③ 매퍼정보 설정 --> 
+	<mappers>
+		<mapper resource="board.xml" />
+	<!-- 	<mapper resource="follow.xml" /> -->
+		<mapper resource="member.xml" />
+	</mappers>
+	
+	
+</configuration>
