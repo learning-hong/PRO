@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="followns">
+	<!-- type:model Follow -->
+	<resultMap type="follow" id="followResult">
+		<id property="followNo" column="followNo" />
+		<result property="activeUser" column="activeUser" />
+		<result property="passiveUser" column="passiveUser" />
+		<result property="regDate" column="regDate" />
+
+		<result property="activeUserId" column="activeUserId" />
+		<result property="passiveUserId" column="passiveUserId" />
+
+		<result property="profileName" column="profileName" />
+	</resultMap>
+	
+	<!-- 변경점 :userNo에서 memberNo,phone없어지고 del,pw에서 password로 변경  -->
+	<resultMap type="member" id="memberResult">
+		<id property="memberNo" column="memberNo" />
+		<result property="id" column="id" />
+		<result property="password" column="password" />
+		<result property="email" column="email" />
+		<result property="name" column="name" />
+		<result property="del" column="del" />
+		<result property="regDate" column="regDate" />
+	</resultMap>
+
+	<!--팔로우 기능 -->
+	<insert id="follow">
+		insert into follow(activeUser,passiveUser)
+		values(#{activeUser},#{passiveUser})
+	</insert>
+	<!--언팔 기능 -->
+	<delete id="unfollow">
+		delete from follow where activeUser =#{activeUser}
+		and passiveUser=#{passiveUser}
+	</delete>
+	<!--팔로우 유무 조회 기능 -->
+	<select id="isFollow">
+		select count(*) from follow where
+		activeUser=#{activeUser} and passiveUser=#{passiveUser}
+	</select>
+	<!--id:FollowDao resultMap:위에칼럼 -->
+	<!--팔로우리스트조회  -->
+	<select id="selectActiveUserList" resultMap="FollowResult">
+		select
+		activeUser,passiveUser,
+		F.regDate as regDate,
+		M.id as passiveUserId,
+		I.profileName as profileName
+		from Follow F
+		left outer join Member M
+		on
+		(F.passiveUser = M.memberNo)
+		left outer join UserImgs I
+		on (I.userNo =
+		M.memberNo)
+		where activeUser = #{activeUser}
+		order by regDate desc;
+	</select>
+	<!--팔로워 리스트 조회  -->
+	<select id="selectPassiveUserList" resultMap="FollowResult">
+		select activeUser,passiveUser,
+		F.regDate as regDate,
+		M.id as activeUserId,
+		I.profileName as profileName
+		from Follow F
+		left outer join Member M
+		on (F.activeUser =
+		M.memberNo)
+		left outer join UserImgs I
+		on (I.userNo = M.memberNo)
+		where
+		passiveUser = #{passiveUser}
+		order by regDate desc;
+	</select>
+	<!--탈퇴시 팔로우 삭제 -->
+	<delete id="deleteUserAllFollow">
+		delete from follow where activeUser=#{activeUser}
+	</delete>
+
+</mapper>

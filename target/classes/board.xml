@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boardns">
+	<!-- table과 class속성명이 다를 경우 일치 시키기 위해 -->
+	<resultMap type="board" id="boardResult">
+		<result property="bid"		column="bid"/>
+		<result property="writer"	column="writer"/>
+		<result property="title" 	column="title"/>
+		<result property="content"  column="content"/>
+		<result property="hit"      column="hit"/>
+		<result property="fileName" column="fileName"/>
+	<!-- 	<result property="bcode"    column="bCode"/> -->
+		<result property="regdate"  column="regdate"/>
+
+	</resultMap>
+	
+	<!-- 조회 -->
+	<!-- <select id="list"  resultMap="boardResult">
+		select * from pboard order by bid
+	</select> -->
+	
+	<!-- 여기 수정필요 -->
+	 <select id="select" parameterType="integer" resultType="board">
+		select * from pboard where bid=#{bid}
+	</select>
+	 
+	
+	<!-- 입력 -->
+	<insert id="insert" parameterType="board">
+	<!-- selectkey : 시퀀스 생성 
+		keyProperty : 시퀀스 생성할 칼럼, order='BEFORE' : (실행순서) 밑에 글 전에 실행해야 한다,resultType="integer" : 시퀀스 설정후 보내는 데이터 형
+	-->
+	<selectKey keyProperty="bid" order="BEFORE" resultType="integer">
+		select nvl(max(bid),0)+1 bid from pboard
+	</selectKey>
+		insert into pboard values(#{bid},#{writer},#{title},#{content},sysdate,0,#{fileName})
+	</insert>
+	<!-- 수정 -->
+	<update id="update" parameterType="board">
+		update pboard set title=#{title},content=#{content}
+		<!-- 각 글의 사진이 존재 하면 -->
+		<if test="fileName != null">
+			,fileName=#{fileName}
+		</if>
+		 where bid=#{bid}
+	</update>
+	<!-- 삭제 -->
+	<delete id="delete" parameterType="integer">
+		delete from pboard where bid=#{bid}
+	</delete>
+	<!-- top n 조회기능 -->
+	<select id="list" parameterType="board" resultType="board">
+		select * from (select a.*, rowNum rn from (select * from pboard order by bid desc) a)
+				where rn between #{startRow} and #{endRow}
+			<!-- <where>
+				keyword에 값이 있으면 where속에 like옵션을 사용 
+					${}변수 #{}은 값
+				<if test="keyword!=null and keyword!=''">
+					<if test="search=='subcon'">
+						subject like '%'||#{keyword}||'%' or
+						content like '%'||#{keyword}||'%'
+					</if>
+					<if test="search!='subcon'">
+						subject like '%'||'비'||'%'
+						${search} like '%'||#{keyword}||'%'
+					</if>					
+				</if>
+			</where>  -->
+			
+	</select>
+	
+	<select id="getTotal" parameterType="board" resultType="integer">
+		select count(*) from pboard 
+			<!-- where>
+				<if test="keyword!=null and keyword!=''"> 
+					<if test="search=='subcon'">
+						subject like '%'||#{keyword}||'%' or
+						content like '%'||#{keyword}||'%'
+					</if>
+					<if test="search!='subcon'">
+						${search} like '%'||#{keyword}||'%' 비슷한 자료 찾아주는 것
+					</if>					
+				</if>
+			</where> -->
+			<!-- <c:forEach var="list" items=${items} -->
+	</select>
+
+
+	<!-- 좋아요 부분 수 -->
+	<select id="ltlikecount" parameterType="integer" resultType="integer">
+		select count(*) from liketable1 where ltbid=#{ltbid} and ltlike=0
+	</select>
+	 <select id="selectLike" resultType="like" parameterType="like">
+		select * from liketable1 where ltmid=#{ltmid} and ltbid=#{ltbid}
+	</select>
+	
+	<insert id="likeinsert" parameterType="like">
+		insert into liketable1
+		values (#{ltmid},#{ltbid},0)
+	</insert>
+	
+	<select id="ltlikegetinfo" resultType="integer" parameterType="like">
+		select itlike from liketable1 where ltmid=#{ltmid} and ltbid=#{ltbid}
+	</select>
+	
+	<update id="likeupdate" parameterType="board">
+		update liketable1
+		set ltlike = #{ltlike}
+		where ltmid=#{ltmid} and ltbid=#{ltbid}
+	</update>
+
+	
+
+</mapper>

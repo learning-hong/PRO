@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="memberns">
+   <select id="select" parameterType="String" resultType="member">
+      select * from pmember where id=#{id}
+   </select>
+  <!--  <select id="memberList" resultType="member">
+      select * from pmember order by id
+   </select> -->
+   <select id="memberList" resultType="member">
+		select * from pmember where del !='y' order by id
+	</select>
+   <insert id="insert" parameterType="member">
+   <!-- member에 있는 속성의 순서일치 -->
+      insert into pmember values(#{id}, #{email}, #{password},
+      #{name},#{memberPhoto},'n',sysdate)
+      
+   </insert>
+   <update id="delete" parameterType="string"> 
+      update pmember set del='y' where id=#{id}
+   </update> 
+   
+   
+   
+   <!-- <update id="update" parameterType="string"> 
+      update pmember set name=#{name}
+      	<if test="memberPhoto != null">
+			,memberPhoto=#{memberPhoto}
+		</if>
+		 where id=#{id}
+   </update> -->
+   	
+      
+ 
+</mapper>
